@@ -1,0 +1,86 @@
+body {
+    background: #eef2ff;
+    color: #0f172a;
+    min-height: 100vh;
+}
+
+.navbar {
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.navbar-brand,
+.nav-link,
+.text-secondary {
+    color: #0f172a !important;
+}
+
+.nav-link.active {
+    color: #2563eb !important;
+    font-weight: 600;
+}
+
+.card,
+.table-responsive,
+.card-body,
+.alert,
+.form-control,
+.btn,
+.table {
+    border-radius: 18px;
+}
+
+.card,
+.table-responsive,
+.alert {
+    border: 0;
+}
+
+.card {
+    background: #ffffff;
+}
+
+.card-shadow,
+.shadow-sm {
+    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+}
+
+.stat-card {
+    transition: transform .2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+}
+
+.btn-primary {
+    background-color: #3b82f6;
+    border: none;
+}
+
+.btn-outline-secondary {
+    border-radius: 999px;
+}
+
+.table th,
+.table td {
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(59, 130, 246, 0.08);
+}
+
+.form-control,
+textarea.form-control {
+    border-radius: 14px;
+}
+
+.btn-link {
+    color: #3b82f6;
+}
+
+.footer-note {
+    font-size: 0.9rem;
+    color: #6b7280;
+}
