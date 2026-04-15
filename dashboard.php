@@ -1,4 +1,24 @@
 <?php session_start(); ?>
+<?php
+require 'koneksi.php';
+
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit;
+}
+
+// total produk
+$produk = mysqli_query($koneksi, "SELECT COUNT(*) as total FROM produk");
+$dataProduk = mysqli_fetch_assoc($produk);
+
+// total pelanggan
+$pelanggan = mysqli_query($koneksi, "SELECT COUNT(*) as total FROM pelanggan");
+$dataPelanggan = mysqli_fetch_assoc($pelanggan);
+
+// total transaksi
+$penjualan = mysqli_query($koneksi, "SELECT COUNT(*) as total FROM penjualan");
+$dataPenjualan = mysqli_fetch_assoc($penjualan);
+?>
 <!doctype html>
 <html lang="id">
 <head>
@@ -19,7 +39,9 @@
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item"><a class="nav-link active" href="dashboard.php">Dashboard</a></li>
                 <li class="nav-item"><a class="nav-link" href="produk.php">Produk</a></li>
+                <?php if ($_SESSION['role'] === 'admin'): ?>
                 <li class="nav-item"><a class="nav-link" href="pelanggan.php">Pelanggan</a></li>
+                <?php endif; ?>
                 <li class="nav-item"><a class="nav-link" href="transaksi.php">Transaksi</a></li>
             </ul>
             <div class="d-flex align-items-center">
@@ -42,16 +64,19 @@
         <div class="col-md-3">
             <div class="card p-4 stat-card">
                 <h6 class="text-uppercase text-secondary">Total Produk</h6>
+                <h3><?= $dataProduk['total']; ?></h3>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card p-4 stat-card">
                 <h6 class="text-uppercase text-secondary">Total Pelanggan</h6>
+                 <h3><?= $dataPelanggan['total']; ?></h3>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card p-4 stat-card">
                 <h6 class="text-uppercase text-secondary">Total Transaksi</h6>
+                 <h3><?= $dataPenjualan['total']; ?></h3>
             </div>
     </div>
 </div>

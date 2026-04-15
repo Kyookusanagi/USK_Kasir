@@ -3,6 +3,10 @@ session_start();
 require 'koneksi.php';
 
 $error = '';
+$success = '';
+if (isset($_GET['msg'])) {
+    $success = trim($_GET['msg']);
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
@@ -46,6 +50,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if ($error): ?>
             <div class="alert alert-danger py-2"><?= $error ?></div>
         <?php endif; ?>
+        <?php if ($success): ?>
+            <div class="alert alert-success py-2"><?= htmlspecialchars($success) ?></div>
+        <?php endif; ?>
         <form method="post">
             <div class="mb-3">
                 <label class="form-label">Username</label>
@@ -57,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <button class="btn btn-primary w-100">Masuk</button>
         </form>
-    </div>
+    </div> 
 </div>
 </body>
 </html>

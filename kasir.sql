@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Apr 14, 2026 at 07:06 AM
+-- Generation Time: Apr 15, 2026 at 12:37 AM
 -- Server version: 8.4.3
 -- PHP Version: 8.3.30
 
@@ -29,9 +29,10 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `detailpenjualan` (
   `DetailID` int NOT NULL,
-  `PenjualanID` int NOT NULL,
-  `ProdukID` int NOT NULL,
-  `Subtotal` decimal(10,2) NOT NULL
+  `PenjualanID` int DEFAULT NULL,
+  `ProdukID` int DEFAULT NULL,
+  `JumlahProduk` int DEFAULT NULL,
+  `Subtotal` decimal(10,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -42,17 +43,10 @@ CREATE TABLE `detailpenjualan` (
 
 CREATE TABLE `pelanggan` (
   `PelangganID` int NOT NULL,
-  `NamaPelanggan` varchar(255) NOT NULL,
-  `Alamat` text NOT NULL,
-  `NomorTelepon` varchar(15) NOT NULL
+  `NamaPelanggan` varchar(255) DEFAULT NULL,
+  `Alamat` text,
+  `NomorTelepon` varchar(15) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `pelanggan`
---
-
-INSERT INTO `pelanggan` (`PelangganID`, `NamaPelanggan`, `Alamat`, `NomorTelepon`) VALUES
-(1, 'Riska', 'Jl danau maninjau', '');
 
 -- --------------------------------------------------------
 
@@ -62,9 +56,9 @@ INSERT INTO `pelanggan` (`PelangganID`, `NamaPelanggan`, `Alamat`, `NomorTelepon
 
 CREATE TABLE `penjualan` (
   `PenjualanID` int NOT NULL,
-  `TanggalPenjualan` date NOT NULL,
-  `TotalHarga` decimal(10,2) NOT NULL,
-  `PelangganID` int NOT NULL
+  `TanggalPenjualan` date DEFAULT NULL,
+  `TotalHarga` decimal(10,2) DEFAULT NULL,
+  `PelangganID` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -75,17 +69,10 @@ CREATE TABLE `penjualan` (
 
 CREATE TABLE `produk` (
   `ProdukID` int NOT NULL,
-  `NamaProduk` varchar(255) NOT NULL,
-  `Harga` decimal(10,2) NOT NULL,
-  `Stok` int NOT NULL
+  `NamaProduk` varchar(255) DEFAULT NULL,
+  `Harga` decimal(10,2) DEFAULT NULL,
+  `Stok` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `produk`
---
-
-INSERT INTO `produk` (`ProdukID`, `NamaProduk`, `Harga`, `Stok`) VALUES
-(5, 'Garam', 10000.00, 2);
 
 -- --------------------------------------------------------
 
@@ -105,8 +92,8 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`UserID`, `Username`, `Password`, `Role`) VALUES
-(1, 'admin', '21232f297a57a5a743894a0e4a801fc3', 'admin'),
-(2, 'petugas', 'afb91ef692fd08c445e8cb1bab2ccf9c', 'petugas');
+(1, 'admin', 'admin', 'admin'),
+(2, 'petugas', '70657475676173', 'petugas');
 
 --
 -- Indexes for dumped tables
@@ -116,7 +103,9 @@ INSERT INTO `user` (`UserID`, `Username`, `Password`, `Role`) VALUES
 -- Indexes for table `detailpenjualan`
 --
 ALTER TABLE `detailpenjualan`
-  ADD PRIMARY KEY (`PenjualanID`);
+  ADD PRIMARY KEY (`DetailID`),
+  ADD KEY `fk_detail_penjualan` (`PenjualanID`),
+  ADD KEY `fk_detail_produk` (`ProdukID`);
 
 --
 -- Indexes for table `pelanggan`
@@ -128,20 +117,14 @@ ALTER TABLE `pelanggan`
 -- Indexes for table `penjualan`
 --
 ALTER TABLE `penjualan`
-  ADD PRIMARY KEY (`PenjualanID`);
+  ADD PRIMARY KEY (`PenjualanID`),
+  ADD KEY `fk_penjualan_pelanggan` (`PelangganID`);
 
 --
 -- Indexes for table `produk`
 --
 ALTER TABLE `produk`
   ADD PRIMARY KEY (`ProdukID`);
-
---
--- Indexes for table `user`
---
-ALTER TABLE `user`
-  ADD PRIMARY KEY (`UserID`),
-  ADD UNIQUE KEY `Username` (`Username`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -151,13 +134,13 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `detailpenjualan`
 --
 ALTER TABLE `detailpenjualan`
-  MODIFY `PenjualanID` int NOT NULL AUTO_INCREMENT;
+  MODIFY `DetailID` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `pelanggan`
 --
 ALTER TABLE `pelanggan`
-  MODIFY `PelangganID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `PelangganID` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `penjualan`
@@ -169,13 +152,24 @@ ALTER TABLE `penjualan`
 -- AUTO_INCREMENT for table `produk`
 --
 ALTER TABLE `produk`
-  MODIFY `ProdukID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `ProdukID` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `user`
+-- Constraints for dumped tables
 --
-ALTER TABLE `user`
-  MODIFY `UserID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- Constraints for table `detailpenjualan`
+--
+ALTER TABLE `detailpenjualan`
+  ADD CONSTRAINT `fk_detail_penjualan` FOREIGN KEY (`PenjualanID`) REFERENCES `penjualan` (`PenjualanID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_detail_produk` FOREIGN KEY (`ProdukID`) REFERENCES `produk` (`ProdukID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `penjualan`
+--
+ALTER TABLE `penjualan`
+  ADD CONSTRAINT `fk_penjualan_pelanggan` FOREIGN KEY (`PelangganID`) REFERENCES `pelanggan` (`PelangganID`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

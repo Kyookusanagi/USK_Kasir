@@ -36,23 +36,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message = 'Lengkapi pilihan produk, tanggal, jumlah, dan pelanggan sebelum menyimpan.';
     } else {
         $tanggalPenjualan = mysqli_real_escape_string($koneksi, $tanggalPenjualan);
-        $queryProduct = "SELECT Harga FROM produk WHERE ProdukID = $produkID LIMIT 1";
+        $queryProduct = "SELECT Harga, Stok FROM produk WHERE ProdukID = $produkID LIMIT 1";
         $productQueryResult = mysqli_query($koneksi, $queryProduct);
 
         if (!$productQueryResult || mysqli_num_rows($productQueryResult) === 0) {
             $message = 'Produk tidak ditemukan di database.';
         } else {
             $product = mysqli_fetch_assoc($productQueryResult);
-            $totalHarga = floatval($product['Harga']) * $jumlahProduk;
-            $formattedTotal = number_format($totalHarga, 2, '.', '');
+            $stokTersedia = intval($product['Stok']);
 
-            $insertQuery = "INSERT INTO penjualan (TanggalPenjualan, TotalHarga, PelangganID) VALUES ('$tanggalPenjualan', $formattedTotal, $pelangganID)";
-            if (mysqli_query($koneksi, $insertQuery)) {
-                $message = 'Transaksi berhasil disimpan ke riwayat.';
-                header('Location: riwayat_transaksi.php?msg=' . urlencode($message));
-                exit;
+            if ($jumlahProduk > $stokTersedia) {
+                $message = 'Stok produk tidak cukup. Tersedia: ' . $stokTersedia . ' item.';
             } else {
-                $message = 'Gagal menyimpan transaksi: ' . mysqli_error($koneksi);
+                $totalHarga = floatval($product['Harga']) * $jumlahProduk;
+                $formattedTotal = number_format($totalHarga, 2, '.', '');
+
+                mysqli_begin_transaction($koneksi);
+
+                $insertQuery = "INSERT INTO penjualan (TanggalPenjualan, TotalHarga, PelangganID) VALUES ('$tanggalPenjualan', $formattedTotal, $pelangganID)";
+                if (mysqli_query($koneksi, $insertQuery)) {
+                    $updateStockQuery = "UPDATE produk SET Stok = Stok - $jumlahProduk WHERE ProdukID = $produkID";
+                    if (mysqli_query($koneksi, $updateStockQuery)) {
+                        mysqli_commit($koneksi);
+                        $message = 'Transaksi berhasil disimpan ke riwayat dan stok produk berhasil dikurangi.';
+                        header('Location: riwayat_transaksi.php?msg=' . urlencode($message));
+                        exit;
+                    } else {
+                        mysqli_rollback($koneksi);
+                        $message = 'Gagal memperbarui stok produk: ' . mysqli_error($koneksi);
+                    }
+                } else {
+                    mysqli_rollback($koneksi);
+                    $message = 'Gagal menyimpan transaksi: ' . mysqli_error($koneksi);
+                    
+                }
             }
         }
     }
